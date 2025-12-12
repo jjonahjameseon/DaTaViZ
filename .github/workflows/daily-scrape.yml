@@ -1,0 +1,36 @@
+name: Daily Facebook Scraping
+
+on:
+  schedule:
+    # Run every day at midnight UTC
+    - cron: '0 0 * * *'
+  
+  # Allow manual trigger
+  workflow_dispatch:
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      
+      - name: Install dependencies
+        run: |
+          pip install pandas requests
+      
+      - name: Run scraping script
+        run: python scrape_facebook.py
+      
+      - name: Upload to GitHub
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add posts.csv comments.csv
+          git commit -m "Update datasets - $(date)"
+          git push
